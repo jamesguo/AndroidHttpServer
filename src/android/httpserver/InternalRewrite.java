@@ -1,8 +1,9 @@
-package fi.iki.elonen;
+package android.httpserver;
 
 import java.util.Map;
 
-import static fi.iki.elonen.NanoHTTPD.Response;
+import android.httpserver.NanoHTTPD.Response;
+
 
 /**
  * @author Paul S. Hawke (paul.hawke@gmail.com)

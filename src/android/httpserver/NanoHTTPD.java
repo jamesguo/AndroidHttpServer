@@ -1,4 +1,4 @@
-package fi.iki.elonen;
+package android.httpserver;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

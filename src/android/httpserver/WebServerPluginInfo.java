@@ -1,4 +1,5 @@
-package fi.iki.elonen;
+package android.httpserver;
+
 
 /**
 * @author Paul S. Hawke (paul.hawke@gmail.com)

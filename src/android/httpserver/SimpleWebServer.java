@@ -1,4 +1,4 @@
-package fi.iki.elonen;
+package android.httpserver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
+
+import android.httpserver.util.ViewPreview;
+import android.httpserver.util.ViewScanner;
+
+
 
 public class SimpleWebServer extends NanoHTTPD {
     /**
@@ -286,7 +291,11 @@ public class SimpleWebServer extends NanoHTTPD {
 		if (uri.equals("/snapshot")) {
 			return createResponse(Response.Status.OK, NanoHTTPD.MIME_PLAINTEXT, ViewScanner.hierachySnapshot());
 		}
-
+		if (uri.equals("/preview")) {
+			String idStr = session.getQueryParameterString();
+			long id = Long.valueOf(idStr.substring(idStr.indexOf("=") + 1));
+			return createResponse(Response.Status.OK, NanoHTTPD.MIME_PLAINTEXT, ViewPreview.getViewPreview(id));
+		}
         boolean canServeUri = false;
         File homeDir = null;
         List<File> roots = getRootDirs();

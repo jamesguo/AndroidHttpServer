@@ -8,16 +8,17 @@ import java.io.InputStream;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
+import android.httpserver.SimpleWebServer;
 import android.os.Bundle;
 import android.view.Menu;
-import fi.iki.elonen.SimpleWebServer;
+import ctrip.base.logical.component.CtripBaseApplication;
 
 public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		BaseApplication.getApplicationInstance().setCurrentActivity(this);
+		CtripBaseApplication.getInstance().setCurrentActivity(this);
 		setContentView(R.layout.activity_main);
 		AssetManager assetManager = getAssets();
 		try {

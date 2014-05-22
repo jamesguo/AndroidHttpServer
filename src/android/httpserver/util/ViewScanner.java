@@ -1,4 +1,4 @@
-package fi.iki.elonen;
+package android.httpserver.util;
 
 import java.lang.reflect.Field;
 
@@ -9,22 +9,21 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.androidhttpserver.BaseApplication;
+import ctrip.base.logical.component.CtripBaseApplication;
 
 public class ViewScanner {
 	public static String hierachySnapshot() {
-		Activity activity = BaseApplication.getApplicationInstance().getCurrentActivity();
+		Activity activity = CtripBaseApplication.getInstance().getCurrentActivity();
 		View rootView = activity.getWindow().getDecorView();
 		try {
 			JSONArray windowObjects = new JSONArray();
 			JSONObject windowObject = scanView(rootView);
-			windowObject.put("preview", "/preview?id=" + activity.getWindow().hashCode());
+			windowObject.put("preview", "/preview?id=" + rootView.hashCode());
 			windowObjects.put(windowObject);
 			JSONObject response = new JSONObject();
-			response.put("windows", windowObject);
-			response.put("screen_w", rootView.getMeasuredWidth());
-			response.put("screen_h", rootView.getMinimumHeight());
+			response.put("windows", windowObjects);
+			response.put("screen_w", rootView.getMeasuredWidth() / 2);
+			response.put("screen_h", rootView.getMeasuredHeight() / 2);
 			response.put("version", "1.0");
 			return response.toString();
 		} catch (JSONException e) {
@@ -34,21 +33,47 @@ public class ViewScanner {
 
 		return "";
 	}
+
+	private static View recursiverForView(long id, View rootView) {
+		if (rootView.hashCode() == id) {
+			return rootView;
+		}
+		if (rootView instanceof ViewGroup) {
+			int count = ((ViewGroup) rootView).getChildCount();
+			for (int i = 0; i < count; i++) {
+				try {
+					View childView = ((ViewGroup) rootView).getChildAt(i);
+					View result = recursiverForView(id, childView);
+					if (result != null) {
+						return result;
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+		}
+		return null;
+	}
+
+	public static View findViewByID(long id) {
+		Activity activity = CtripBaseApplication.getInstance().getCurrentActivity();
+		View rootView = activity.getWindow().getDecorView();
+		return recursiverForView(id, rootView);
+	}
 	private static JSONObject scanView(View rootView) {
 		if (rootView != null) {
 			JSONObject jsonObject = new JSONObject();
 			try {
 				Class<?> viewclass = rootView.getClass();
 				String classname = viewclass.getSimpleName();
+				int[] location = new int[2];
+				rootView.getLocationOnScreen(location);
 				jsonObject.put("class", ":" + classname);
-				jsonObject.put("layer_bounds_x", 0);
-				jsonObject.put("layer_bounds_y", 0);
-				jsonObject.put("layer_bounds_w", rootView.getMeasuredWidth());
-				jsonObject.put("layer_bounds_h", rootView.getMeasuredHeight());
-				jsonObject.put("layer_position_x", "" + rootView.getTop());
-				jsonObject.put("layer_position_y", "" + rootView.getLeft());
-				jsonObject.put("layer_anchor_x", "" + 0.5);
-				jsonObject.put("layer_anchor_y", "" + 0.5);
+				jsonObject.put("layer_screen_x", location[0] / 2);
+				jsonObject.put("layer_screen_y", location[1] / 2);
+				jsonObject.put("layer_bounds_w", rootView.getMeasuredWidth() / 2);
+				jsonObject.put("layer_bounds_h", rootView.getMeasuredHeight() / 2);
+				jsonObject.put("id", "" + rootView.hashCode());
 				JSONArray fieldArray = new JSONArray();
 				Field[] fields = viewclass.getDeclaredFields();
 				for (Field field : fields) {
@@ -75,12 +100,17 @@ public class ViewScanner {
 						} else {
 							fieldDescription.put("value", "NO");
 						}
-					} else if (value instanceof String) {
-						fieldDescription.put("type", "char");
+					} else if (value instanceof CharSequence) {
+						fieldDescription.put("type", "String");
 						fieldDescription.put("value", value);
 					} else {
-						fieldDescription.put("type", value.getClass().getSimpleName());
-						fieldDescription.put("value", "Object:" + value);
+						if (value != null) {
+							fieldDescription.put("type", value.getClass().getSimpleName());
+							fieldDescription.put("value", "Object:" + value);
+						} else {
+							fieldDescription.put("type", field.getType().getName());
+							fieldDescription.put("value", "Object:" + value);
+						}
 					}
 					fieldArray.put(fieldDescription);
 				}
@@ -99,7 +129,7 @@ public class ViewScanner {
 						try {
 							View childView = ((ViewGroup) rootView).getChildAt(i);
 							JSONObject object = scanView(childView);
-							childViewsArray.put(0, object);
+							childViewsArray.put(object);
 						} catch (Exception e) {
 							// TODO: handle exception
 						}

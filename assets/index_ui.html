@@ -14,14 +14,14 @@
 
 		var createScreenNode = function(viewMeta, viewParentMeta) {
 			var viewNode = $('<div class="screen_node" data_id="' + viewMeta.id + '"></div>');
-			var leftOffset = viewParentMeta ? viewParentMeta.layer_bounds_x : 0;
-			var topOffset = viewParentMeta ? viewParentMeta.layer_bounds_y : 0;
-			viewNode.css('left'  , ( viewMeta.layer_position_x - viewMeta.layer_bounds_w * viewMeta.layer_anchor_x - leftOffset -1  ) + 'px');
-			viewNode.css('top'	 , ( viewMeta.layer_position_y - viewMeta.layer_bounds_h * viewMeta.layer_anchor_y - topOffset  -1  ) + 'px');
+			var leftOffset = viewParentMeta ? viewParentMeta.layer_screen_x : 0;
+			var topOffset = viewParentMeta ? viewParentMeta.layer_screen_y : 0;
+			viewNode.css('left'  , ( viewMeta.layer_screen_x - leftOffset -1  ) + 'px');
+			viewNode.css('top'	 , ( viewMeta.layer_screen_y - topOffset -1  ) + 'px');
 			viewNode.css('width' , ( viewMeta.layer_bounds_w - 2 ) + 'px');
 			viewNode.css('height', ( viewMeta.layer_bounds_h - 2 ) + 'px');
-			viewNode.css('-webkit-origin', ( viewMeta.layer_anchor_x * 10 ) + '%', ( viewMeta.layer_anchor_y * 10 ) + '%');
-			viewNode.css('-webkit-transform', 'matrix3d(' + viewMeta.layer_transform + ')');
+			// viewNode.css('-webkit-origin', ( viewMeta.layer_anchor_x * 10 ) + '%', ( viewMeta.layer_anchor_y * 10 ) + '%');
+			// viewNode.css('-webkit-transform', 'matrix3d(' + viewMeta.layer_transform + ')');
 			if ( viewMeta.preview ) {
 				viewNode.css('background-image', "url('" + viewMeta.preview + "')");
 				viewNode.css('background-origin', 'border-box');

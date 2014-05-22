@@ -1,9 +1,10 @@
-package fi.iki.elonen;
+package android.httpserver;
 
 import java.io.File;
 import java.util.Map;
 
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import android.httpserver.NanoHTTPD.IHTTPSession;
+
 
 /**
 * @author Paul S. Hawke (paul.hawke@gmail.com)
