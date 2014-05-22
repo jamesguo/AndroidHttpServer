@@ -1,6 +1,8 @@
 package android.httpserver.util;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,6 +62,18 @@ public class ViewScanner {
 		View rootView = activity.getWindow().getDecorView();
 		return recursiverForView(id, rootView);
 	}
+
+	public static Class<?> getAllFields(Object object, Class<?> _class, ArrayList<Field> result) {
+		if (_class == null)
+			return null;
+		else {
+			Field[] fields = _class.getDeclaredFields();
+			ArrayList<Field> currentFields = new ArrayList<Field>(Arrays.asList(fields));
+			result.addAll(currentFields);
+			return getAllFields(object, _class.getSuperclass(), result);
+		}
+	}
+
 	private static JSONObject scanView(View rootView) {
 		if (rootView != null) {
 			JSONObject jsonObject = new JSONObject();
@@ -75,25 +89,26 @@ public class ViewScanner {
 				jsonObject.put("layer_bounds_h", rootView.getMeasuredHeight() / 2);
 				jsonObject.put("id", "" + rootView.hashCode());
 				JSONArray fieldArray = new JSONArray();
-				Field[] fields = viewclass.getDeclaredFields();
-				for (Field field : fields) {
+				ArrayList<Field> result = new ArrayList<Field>();
+				getAllFields(rootView, viewclass, result);
+				for (Field field : result) {
 					field.setAccessible(true);
 					Object value = field.get(rootView);
 					JSONObject fieldDescription = new JSONObject();
 					fieldDescription.put("name", field.getName());
-					if(value instanceof Float){
+					if (value instanceof Float) {
 						fieldDescription.put("type", "float");
 						fieldDescription.put("value", value);
-					}else if(value instanceof Double){
+					} else if (value instanceof Double) {
 						fieldDescription.put("type", "double");
 						fieldDescription.put("value", value);
-					}else if(value instanceof Integer){
+					} else if (value instanceof Integer) {
 						fieldDescription.put("type", "int");
 						fieldDescription.put("value", value);
-					}else if(value instanceof Long){
+					} else if (value instanceof Long) {
 						fieldDescription.put("type", "long");
 						fieldDescription.put("value", value);
-					}else if(value instanceof Boolean){
+					} else if (value instanceof Boolean) {
 						fieldDescription.put("type", "BOOL");
 						if ((Boolean) value) {
 							fieldDescription.put("value", "YES");
@@ -125,7 +140,7 @@ public class ViewScanner {
 				JSONArray childViewsArray = new JSONArray();
 				if (rootView instanceof ViewGroup) {
 					int count = ((ViewGroup) rootView).getChildCount();
-					for(int i=0;i<count;i++){
+					for (int i = 0; i < count; i++) {
 						try {
 							View childView = ((ViewGroup) rootView).getChildAt(i);
 							JSONObject object = scanView(childView);
