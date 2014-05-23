@@ -4,10 +4,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.httpserver.util.ViewScanner;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import autodriver.util.KeyboardMapper;
+import ctrip.base.logical.component.CtripBaseApplication;
 
 public class CommandKey extends BaseCommand {
 
@@ -16,21 +21,46 @@ public class CommandKey extends BaseCommand {
 		try {
 			JSONObject params = request.params();
 			long elementId = params.optLong("elementId", 0);
-			String text = params.optString("text", "");
-			View view = ViewScanner.findViewByID(elementId);
+			final String text = params.optString("text", "");
+			final View view = ViewScanner.findViewByID(elementId);
 			if (view instanceof TextView) {
-				((TextView) view).setText(text);
+				Handler handler = new Handler(Looper.getMainLooper());
+				handler.post(new Runnable() {
+
+					@Override
+					public void run() {
+						((TextView) view).setText(text);
+						InputMethodManager imm = (InputMethodManager) CtripBaseApplication.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+					}
+				});
 			} else {
 				int[] location = new int[2];
 				view.getLocationOnScreen(location);
 				CommandClick.tapPosition(location[0] + view.getMeasuredWidth() / 2, location[1] + view.getMeasuredHeight() / 2);
-				int length = text.length();
-				for (int i = 0; i < length; i++) {
-					char a = text.charAt(i);
-					int key = KeyboardMapper.getPrimaryKeyCode(a);
-					if (key != 0) {
-						tapKey(key);
+				final View focusView = CtripBaseApplication.getInstance().getCurrentActivity().getCurrentFocus();
+				if (focusView != null && focusView instanceof TextView) {
+					Handler handler = new Handler(Looper.getMainLooper());
+					handler.post(new Runnable() {
+
+						@Override
+						public void run() {
+							((TextView) focusView).setText(text);
+						}
+					});
+				} else {
+					int length = text.length();
+					for (int i = 0; i < length; i++) {
+						char a = text.charAt(i);
+						int key = KeyboardMapper.getPrimaryKeyCode(a);
+						if (key != 0) {
+							tapKey(key);
+						}
 					}
+				}
+				if (focusView != null) {
+					InputMethodManager imm = (InputMethodManager) CtripBaseApplication.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
 				}
 			}
 

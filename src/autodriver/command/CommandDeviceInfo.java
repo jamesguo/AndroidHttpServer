@@ -1,5 +1,7 @@
 package autodriver.command;
 
+import java.lang.reflect.Method;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,7 +22,19 @@ public class CommandDeviceInfo extends BaseCommand {
 		try {
 			res.put("height", displayMetrics.heightPixels);
 			res.put("width", displayMetrics.widthPixels);
+			res.put("OS", "Android");
 			res.put("Version", Build.VERSION.SDK_INT);
+			res.put("NAME", Build.MODEL + "-" + android.os.Build.ID);
+			String serial = null;
+			try {
+				Class<?> c = Class.forName("android.os.SystemProperties");
+				Method get = c.getMethod("get", String.class);
+				serial = (String) get.invoke(c, "ro.serialno");
+				System.out.println(serial);
+				res.put("NAME", Build.MODEL + "-" + serial);
+			} catch (Exception ignored) {
+
+			}
 			res.put("MODEL", Build.MODEL);
 			res.put("BOARD", Build.BOARD);
 			res.put("MANUFACTURER", Build.MANUFACTURER);

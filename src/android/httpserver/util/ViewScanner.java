@@ -192,17 +192,19 @@ public class ViewScanner {
 						}
 
 					} else {
-						// continue;
-						if (value != null) {
-							// if (field.getName().equals("mBackground")) {
-							//
-							// }
-							fieldDescription.put("type", value.getClass().getSimpleName());
-							fieldDescription.put("value", "Object:" + value);
-						} else {
-							fieldDescription.put("type", field.getType().getName());
-							fieldDescription.put("value", "NULL");
-						}
+						continue;
+						// if (value != null) {
+						// // if (field.getName().equals("mBackground")) {
+						// //
+						// // }
+						// fieldDescription.put("type",
+						// value.getClass().getSimpleName());
+						// fieldDescription.put("value", "Object:" + value);
+						// } else {
+						// fieldDescription.put("type",
+						// field.getType().getName());
+						// fieldDescription.put("value", "NULL");
+						// }
 					}
 					fieldArray.put(fieldDescription);
 				}

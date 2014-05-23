@@ -233,7 +233,7 @@ public class CommandFind extends BaseCommand {
 				for (int i = 0; i < usefulFieldCount; i++) {
 					try {
 						JSONObject object = (JSONObject) fieldArray.get(i);
-						if (object.get("value").equals(target)) {
+						if (object.get("value").equals(target) && !object.get("name").equals("mBtnRightText") && !object.get("name").equals("mTextSubmitValue")) {
 							JSONObject jsonObject = new JSONObject();
 							jsonObject.put("id", rootView.hashCode());
 							reslutList.put(jsonObject);
