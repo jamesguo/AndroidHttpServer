@@ -33,7 +33,8 @@ import ctrip.android.activity.CtripBaseActivityV2;
 import ctrip.base.logical.component.CtripBaseApplication;
 
 public class AutoDriver {
-	public static final String url = "172.16.156.234";
+	// public static final String url = "172.16.156.234";
+	public static final String url = "172.16.42.122";
 	public static final int port = 6100;
 	public static Socket client;
 	public static boolean finished;

@@ -11,9 +11,11 @@ import java.net.Socket;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.httpserver.SimpleWebServer;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.EditText;
+import android.widget.Toast;
 import autodriver.command.AndroidActionProtocol;
 import autodriver.command.AndroidActionType;
 import autodriver.command.CommandKey;
@@ -23,6 +25,7 @@ public class MainActivity extends Activity {
 	EditText editText;
 	public static final String url = "172.16.156.234";
 	public static final int port = 6100;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,14 +52,13 @@ public class MainActivity extends Activity {
 		// // TODO Auto-generated catch block
 		// e.printStackTrace();
 		// }
-		// new Thread(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// SimpleWebServer.main(new String[] { "-d",
-		// "/data/data/com.androidhttpserver/files" });
-		// }
-		// }).start();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				SimpleWebServer.main(new String[] { "-d", "/data/data/com.androidhttpserver/files" });
+			}
+		}).start();
 
 	}
 
@@ -66,7 +68,7 @@ public class MainActivity extends Activity {
 		super.onResume();
 
 		new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {
@@ -113,6 +115,8 @@ public class MainActivity extends Activity {
 				commandKey.excute(protocol);
 			}
 		}).start();
+		Toast toast = Toast.makeText(getApplicationContext(), "12333", Toast.LENGTH_LONG);
+		toast.show();
 	}
 
 	public static void copyFile(InputStream inputStream, FileOutputStream targetFile) throws IOException {
@@ -135,6 +139,7 @@ public class MainActivity extends Activity {
 		outBuff.close();
 		inputStream.close();
 	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

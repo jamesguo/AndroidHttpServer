@@ -33,7 +33,7 @@ public class CommandScreenShot extends BaseCommand {
 		Bitmap bitmap = ViewPreview.convertViewToBitmap(rootView);
 		if (bitmap != null) {
 			ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-			bitmap.compress(Bitmap.CompressFormat.PNG, 100, arrayOutputStream);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 60, arrayOutputStream);
 			byte[] bytearray = arrayOutputStream.toByteArray();
 			bitmap.recycle();
 			bitmap = null;

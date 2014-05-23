@@ -62,7 +62,7 @@ public class CommandFind extends BaseCommand {
 		try {
 			JSONObject params = request.params();
 			int findType = params.optInt("findType", FindType.NAME.index);
-			int timeout = params.optInt("timeout", 15);
+			int timeout = params.optInt("timeout", 10);
 			String value = TypeConvertUtil.getSimpleStr(params.optString("value", ""));
 			JSONArray reuslt = findViews(findType, value, timeout);
 			AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
@@ -170,11 +170,13 @@ public class CommandFind extends BaseCommand {
 						JSONObject fieldDescription = new JSONObject();
 						fieldDescription.put("name", field.getName());
 						if (fieldValue instanceof Float) {
-							fieldDescription.put("type", "float");
-							fieldDescription.put("value", fieldValue);
+							continue;
+							// fieldDescription.put("type", "float");
+							// fieldDescription.put("value", fieldValue);
 						} else if (fieldValue instanceof Double) {
-							fieldDescription.put("type", "double");
-							fieldDescription.put("value", fieldValue);
+							continue;
+							// fieldDescription.put("type", "double");
+							// fieldDescription.put("value", fieldValue);
 						} else if (fieldValue instanceof Integer) {
 							if (field.getName().equals("mBackgroundResource") && (Integer) fieldValue > 0) {
 								String name = CtripBaseApplication.getInstance().getResources().getResourceName((Integer) fieldValue);
@@ -198,31 +200,40 @@ public class CommandFind extends BaseCommand {
 								fieldDescription.put("value", fieldValue);
 							}
 						} else if (fieldValue instanceof Long) {
-							fieldDescription.put("type", "long");
-							fieldDescription.put("value", fieldValue);
+							continue;
+							// fieldDescription.put("type", "long");
+							// fieldDescription.put("value", fieldValue);
 						} else if (fieldValue instanceof Boolean) {
-							fieldDescription.put("type", "BOOL");
-							if ((Boolean) fieldValue) {
-								fieldDescription.put("value", "YES");
-							} else {
-								fieldDescription.put("value", "NO");
-							}
+							continue;
+							// fieldDescription.put("type", "BOOL");
+							// if ((Boolean) fieldValue) {
+							// fieldDescription.put("value", "YES");
+							// } else {
+							// fieldDescription.put("value", "NO");
+							// }
 						} else if (fieldValue instanceof CharSequence) {
+
 							fieldDescription.put("type", "String");
 							fieldDescription.put("value", TypeConvertUtil.getSimpleStr((String) fieldValue));
 							fieldArray.put(fieldDescription);
-							if (field.getName().equals("mText") || field.getName().equals("mHint")) {
-								//
-								System.out.println();
-							}
+							// if (field.getName().equals("mText") ||
+							// field.getName().equals("mHint")) {
+							// //
+							// System.out.println();
+							// }
 						} else {
-							if (fieldValue != null) {
-								fieldDescription.put("type", fieldValue.getClass().getSimpleName());
-								fieldDescription.put("value", "Object:" + fieldValue);
-							} else {
-								fieldDescription.put("type", field.getType().getName());
-								fieldDescription.put("value", "Object:" + fieldValue);
-							}
+							continue;
+							// if (fieldValue != null) {
+							// fieldDescription.put("type",
+							// fieldValue.getClass().getSimpleName());
+							// fieldDescription.put("value", "Object:" +
+							// fieldValue);
+							// } else {
+							// fieldDescription.put("type",
+							// field.getType().getName());
+							// fieldDescription.put("value", "Object:" +
+							// fieldValue);
+							// }
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

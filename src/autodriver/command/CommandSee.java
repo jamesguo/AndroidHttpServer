@@ -15,7 +15,7 @@ public class CommandSee extends BaseCommand {
 		try {
 			JSONObject params = request.params();
 			int findType = params.optInt("findType", FindType.NAME.index);
-			int timeout = params.optInt("timeout", 15);
+			int timeout = params.optInt("timeout", 5);
 			String value = TypeConvertUtil.getSimpleStr(params.optString("value", ""));
 			JSONArray reuslt = CommandFind.findViews(findType, value, timeout);
 			AndroidActionProtocol actionProtocol = new AndroidActionProtocol();

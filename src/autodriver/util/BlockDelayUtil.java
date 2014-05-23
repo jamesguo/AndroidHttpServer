@@ -5,7 +5,7 @@ public class BlockDelayUtil {
 		long starTime = System.currentTimeMillis();
 		while (executeBlock.excute(objects) == ExecuteBlock.StepResultWait && (System.currentTimeMillis() - starTime) < timeout * 1000) {
 			try {
-				Thread.sleep(100);
+				Thread.sleep(200);
 			} catch (Exception e) {
 				// TODO: handle exception
 			}
@@ -19,6 +19,6 @@ public class BlockDelayUtil {
 			public int excute(Object... objects) {
 				return ExecuteBlock.StepResultWait;
 			}
-		}, timeout + 1);
+		}, timeout);
 	}
 }
