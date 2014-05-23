@@ -5,19 +5,31 @@ import java.io.ByteArrayOutputStream;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.httpserver.util.ViewPreview;
 import android.view.View;
+import autodriver.core.AutoDriver;
 import autodriver.util.TypeConvertUtil;
-import ctrip.base.logical.component.CtripBaseApplication;
 
 public class CommandScreenShot extends BaseCommand {
 
 	@Override
 	public AndroidActionProtocol excute(AndroidActionProtocol request) {
-		Activity activity = CtripBaseApplication.getInstance().getCurrentActivity();
-		View rootView = activity.getWindow().getDecorView();
+		View rootView = AutoDriver.getRootView();
+		if (rootView == null) {
+			AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
+			actionProtocol.actionCode = request.actionCode;
+			actionProtocol.SeqNo = request.SeqNo;
+			actionProtocol.result = (byte) 1;
+			JSONObject res = new JSONObject();
+			try {
+				res.put("errorinfo", "can not take screenshot");
+				actionProtocol.json = res;
+				return actionProtocol;
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
 		Bitmap bitmap = ViewPreview.convertViewToBitmap(rootView);
 		if (bitmap != null) {
 			ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
@@ -39,21 +51,20 @@ public class CommandScreenShot extends BaseCommand {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-		} else {
-			AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
-			actionProtocol.actionCode = request.actionCode;
-			actionProtocol.SeqNo = request.SeqNo;
-			actionProtocol.result = (byte) 1;
-			JSONObject res = new JSONObject();
-			try {
-				res.put("errorinfo", "can not take screenshot");
-				actionProtocol.json = res;
-				return actionProtocol;
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
 		}
-		return null;
+
+		AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
+		actionProtocol.actionCode = request.actionCode;
+		actionProtocol.SeqNo = request.SeqNo;
+		actionProtocol.result = (byte) 1;
+		JSONObject res = new JSONObject();
+		try {
+			res.put("errorinfo", "can not take screenshot");
+			actionProtocol.json = res;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return actionProtocol;
 	}
 
 }

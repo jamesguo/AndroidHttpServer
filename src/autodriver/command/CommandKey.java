@@ -1,5 +1,6 @@
 package autodriver.command;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Instrumentation;
@@ -42,9 +43,20 @@ public class CommandKey extends BaseCommand {
 			actionProtocol.json = jsonObject;
 			return actionProtocol;
 		} catch (Exception e) {
-			// TODO: handle exception
+			AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
+			actionProtocol.actionCode = request.actionCode;
+			actionProtocol.SeqNo = request.SeqNo;
+			actionProtocol.result = (byte) 1;
+			JSONObject jsonObject = new JSONObject();
+			try {
+				jsonObject.put("value", "fail");
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			actionProtocol.json = jsonObject;
+			return actionProtocol;
 		}
-		return null;
 	}
 
 	public static void tapKey(int key) {

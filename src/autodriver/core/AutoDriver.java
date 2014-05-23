@@ -12,9 +12,11 @@ import java.net.Socket;
 
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.httpserver.SimpleWebServer;
+import android.util.Log;
 import android.view.View;
 import autodriver.command.AndroidActionProtocol;
 import autodriver.command.AndroidActionType;
@@ -27,10 +29,11 @@ import autodriver.command.CommandSee;
 import autodriver.command.CommandWaitToDisappear;
 import autodriver.util.CommondProcoltolUtil;
 import autodriver.util.TypeConvertUtil;
+import ctrip.android.activity.CtripBaseActivityV2;
 import ctrip.base.logical.component.CtripBaseApplication;
 
 public class AutoDriver {
-	public static final String url = "http://172.16.156.234";
+	public static final String url = "172.16.156.234";
 	public static final int port = 6100;
 	public static Socket client;
 	public static boolean finished;
@@ -129,8 +132,20 @@ public class AutoDriver {
 		}
 	}
 
+	public static void goHome() {
+		Activity activity = CtripBaseApplication.getInstance().getCurrentActivity();
+		if (activity == null || !(activity instanceof CtripBaseActivityV2)) {
+			return;
+		}
+		((CtripBaseActivityV2) activity).goHome(0);
+	}
 	public static View getRootView() {
-		return null;
+		Activity activity = CtripBaseApplication.getInstance().getCurrentActivity();
+		if (activity == null) {
+			return null;
+		}
+		View rootView = activity.getWindow().getDecorView();
+		return rootView;
 	}
 
 	public static boolean isConnected() {
@@ -222,6 +237,7 @@ public class AutoDriver {
 	}
 
 	private static void restart() {
+		goHome();
 		if (!finished) {
 			finished = true;
 		}
@@ -239,7 +255,8 @@ public class AutoDriver {
 	}
 
 	protected static void runCommand(AndroidActionProtocol request) {
-		AndroidActionProtocol response = null;
+		Log.e("AutoDriver", "RecvMessage:" + request.body);
+		AndroidActionProtocol response = new AndroidActionProtocol();
 		switch (request.actionCode) {
 		case AndroidActionType.FIND:
 			CommandFind commandFind = new CommandFind();
@@ -305,6 +322,7 @@ public class AutoDriver {
 
 	public static void sendMessage(AndroidActionProtocol response) {
 		byte[] dataBean = CommondProcoltolUtil.buileResponse(response);
+		Log.e("AutoDriver", "SendMessage:" + response.body);
 		OutputStream outputStream;
 		try {
 			outputStream = client.getOutputStream();

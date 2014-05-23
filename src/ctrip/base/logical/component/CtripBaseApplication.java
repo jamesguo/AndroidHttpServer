@@ -15,6 +15,7 @@ public class CtripBaseApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		CtripBaseApplication.sAppInstance = this;
 	}
 
 	public void setCurrentActivity(Activity currentActivity) {

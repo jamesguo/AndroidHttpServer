@@ -21,7 +21,8 @@ public class AndroidActionProtocol {
 	}
 
 	public JSONObject params() throws JSONException {
-		final JSONObject paramsObj = json.getJSONObject("params");
+		String paramsObjString = json.optString("params");
+		JSONObject paramsObj = new JSONObject(paramsObjString);
 		return paramsObj;
 	}
 

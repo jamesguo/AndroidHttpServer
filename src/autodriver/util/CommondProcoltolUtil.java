@@ -37,6 +37,7 @@ public class CommondProcoltolUtil {
 				bean.result = (byte) jsonObject.optInt("result");
 				bean.SeqNo = jsonObject.optInt("seqNo");
 				bean.body = jsonObject.optString("body");
+				bean.json = new JSONObject(bean.body);
 			// } else {
 			// bean.actionCode = AndroidActionCommandType.SCREENSHOT;
 			// bean.result = (byte) 0;

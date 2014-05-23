@@ -1,5 +1,6 @@
 package autodriver.command;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Instrumentation;
@@ -44,7 +45,19 @@ public class CommandClick extends BaseCommand {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		return null;
+		AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
+		actionProtocol.actionCode = request.actionCode;
+		actionProtocol.SeqNo = request.SeqNo;
+		actionProtocol.result = (byte) 1;
+		JSONObject jsonObject = new JSONObject();
+		try {
+			jsonObject.put("errorinfo", "can not find");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		actionProtocol.json = jsonObject;
+		return actionProtocol;
 	}
 
 	public static void tapPosition(float x, float y) {

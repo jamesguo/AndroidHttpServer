@@ -71,4 +71,14 @@ public class TypeConvertUtil {
 	public static String getFormatImageTime() {
 		return new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(System.currentTimeMillis());
 	}
+
+	public static String getSimpleStr(String origon) {
+		origon = origon.replace("\t", "");
+		origon = origon.replace("\n", "");
+		origon = origon.replace("\r", "");
+		origon = origon.replace(" ", "");
+		origon = origon.replace(" ", "");
+		origon = origon.replace("¡¡", "");
+		return origon;
+	}
 }
