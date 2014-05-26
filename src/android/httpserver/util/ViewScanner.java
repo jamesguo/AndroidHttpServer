@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import autodriver.core.AutoDriver;
 import ctrip.base.logical.component.CtripBaseApplication;
 import ctrip.base.logical.component.widget.CtripTitleView;
@@ -22,12 +23,9 @@ public class ViewScanner {
 			return "";
 		}
 		try {
-			JSONArray windowObjects = new JSONArray();
-			JSONObject windowObject = scanView(rootView);
-			windowObject.put("preview", "/preview?id=" + rootView.hashCode());
-			windowObjects.put(windowObject);
 			JSONObject response = new JSONObject();
-			response.put("windows", windowObjects);
+			JSONArray jsonArray = scanWindows();
+			response.put("windows", jsonArray);
 			response.put("screen_w", rootView.getMeasuredWidth() / 2);
 			response.put("screen_h", rootView.getMeasuredHeight() / 2);
 			response.put("version", "1.0");
@@ -84,8 +82,14 @@ public class ViewScanner {
 	}
 
 	public static View findViewByID(long id) {
-		View rootView = AutoDriver.getRootView();
-		return recursiverForView(id, rootView);
+		ArrayList<View> arrayList = getAllWindowViews();
+		for (View view : arrayList) {
+			View resView = recursiverForView(id, view);
+			if(resView!=null){
+				return resView;
+			}
+		}
+		return null;
 	}
 
 	public static Class<?> getAllFields(Object object, Class<?> _class, ArrayList<Field> result) {
@@ -97,6 +101,73 @@ public class ViewScanner {
 			result.addAll(currentFields);
 			return getAllFields(object, _class.getSuperclass(), result);
 		}
+	}
+
+	public static ArrayList<View> getAllWindowViews() {
+		WindowManager manager = CtripBaseApplication.getInstance().getCurrentActivity().getWindowManager();
+		ArrayList<Field> arrayList = new ArrayList<Field>();
+		ViewScanner.getAllFields(manager, manager.getClass(), arrayList);
+		ArrayList<View> result = new ArrayList<View>();
+		for (Field field : arrayList) {
+			field.setAccessible(true);
+			try {
+				if (field.getName().equals("mGlobal")) {
+					Object object = field.get(manager);
+					Field rootViews = object.getClass().getDeclaredField("mRoots");
+					rootViews.setAccessible(true);
+					ArrayList<Object> objects = (ArrayList<Object>) rootViews.get(object);
+					if (objects != null) {
+						for (Object viewParent : objects) {
+							Field mView = viewParent.getClass().getDeclaredField("mView");
+							mView.setAccessible(true);
+							result.add((View) mView.get(viewParent));
+						}
+					}
+					break;
+				} else if (field.getName().equals("mRoots")) {
+					Object object = field.get(manager);
+					Object[] views = (Object[]) object;
+					ArrayList<Object> objects = (ArrayList<Object>) Arrays.asList(views);
+					if (objects != null) {
+						for (Object viewParent : objects) {
+							Field mView = viewParent.getClass().getDeclaredField("mView");
+							mView.setAccessible(true);
+							result.add((View) mView.get(viewParent));
+						}
+					}
+					break;
+				}
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static JSONArray scanWindows() {
+		JSONArray windowObjects = new JSONArray();
+		ArrayList<View> result = getAllWindowViews();
+		if (result != null) {
+			for (View view : result) {
+				try {
+					JSONObject windowObject = scanView(view);
+					windowObject.put("preview", "/preview?id=" + view.hashCode());
+					windowObjects.put(windowObject);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return windowObjects;
 	}
 
 	private static JSONObject scanView(View rootView) {

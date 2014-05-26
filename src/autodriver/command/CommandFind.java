@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import android.httpserver.util.ViewScanner;
 import android.view.View;
 import android.view.ViewGroup;
-import autodriver.core.AutoDriver;
 import autodriver.util.BlockDelayUtil;
 import autodriver.util.ExecuteBlock;
 import autodriver.util.TypeConvertUtil;
@@ -96,21 +95,20 @@ public class CommandFind extends BaseCommand {
 				int findType = (Integer) objects[0];
 				String value = (String) objects[1];
 				JSONArray arrayList = (JSONArray) objects[2];
-				View rootView = AutoDriver.getRootView();
 				if (findType == FindType.ID.index) {
 					try {
 						long id = Long.valueOf(value.trim());
 						View view = ViewScanner.findViewByID(id);
 						if (view != null) {
 							JSONObject jsonObject = new JSONObject();
-							jsonObject.put("id", rootView.hashCode());
+							jsonObject.put("id", view.hashCode());
 							arrayList.put(jsonObject);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} else {
-					viewScan(rootView, findType, value, arrayList);
+					viewsScan(findType, value, arrayList);
 				}
 				if (arrayList.length() > 0) {
 					return ExecuteBlock.StepResultSuccess;
@@ -122,6 +120,14 @@ public class CommandFind extends BaseCommand {
 		return arrayList;
 	}
 
+	public static void viewsScan(int findType, String target, JSONArray reslutList) {
+		ArrayList<View> result = ViewScanner.getAllWindowViews();
+		if (result != null) {
+			for (View view : result) {
+				viewScan(view, findType, target, reslutList);
+			}
+		}
+	}
 	public static void viewScan(View rootView, int findType, String target, JSONArray reslutList) {
 		if (rootView != null && rootView.getVisibility() == View.VISIBLE) {
 			FindType find = FindType.getType(findType);

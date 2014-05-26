@@ -18,6 +18,7 @@ import android.content.res.AssetManager;
 import android.httpserver.SimpleWebServer;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import autodriver.command.AndroidActionProtocol;
 import autodriver.command.AndroidActionType;
 import autodriver.command.CommandClick;
@@ -26,6 +27,7 @@ import autodriver.command.CommandFind;
 import autodriver.command.CommandKey;
 import autodriver.command.CommandScreenShot;
 import autodriver.command.CommandSee;
+import autodriver.command.CommandViewDump;
 import autodriver.command.CommandWaitToDisappear;
 import autodriver.util.CommondProcoltolUtil;
 import autodriver.util.TypeConvertUtil;
@@ -145,7 +147,8 @@ public class AutoDriver {
 		if (activity == null) {
 			return null;
 		}
-		View rootView = activity.getWindow().getDecorView();
+		Window window = activity.getWindow();
+		View rootView = window.getDecorView().getRootView();
 		return rootView;
 	}
 
@@ -290,6 +293,10 @@ public class AutoDriver {
 
 			CommandWaitToDisappear commandWaitToDisappear = new CommandWaitToDisappear();
 			response = commandWaitToDisappear.excute(request);
+			break;
+		case AndroidActionType.VIEWDUMP:
+			CommandViewDump commandViewDump = new CommandViewDump();
+			response = commandViewDump.excute(request);
 			break;
 		case AndroidActionType.FINISH:
 			response = new AndroidActionProtocol();
