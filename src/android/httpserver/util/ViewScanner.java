@@ -3,6 +3,7 @@ package android.httpserver.util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -104,7 +105,29 @@ public class ViewScanner {
 	}
 
 	public static ArrayList<View> getAllWindowViews() {
-		WindowManager manager = CtripBaseApplication.getInstance().getCurrentActivity().getWindowManager();
+		WindowManager manager = CtripBaseApplication.getInstance().getCurrentActivity().getWindow().getWindowManager();
+		try {
+			Class<?> windowClass = Class.forName("android.view.Window$LocalWindowManager");
+			 ArrayList<Field> arrayList = new ArrayList<Field>();
+			ViewScanner.getAllFields(manager, windowClass, arrayList);
+			for (Field field : arrayList) {
+				if (field.getName().equals("mWindowManager")) {
+					field.setAccessible(true);
+					manager = (WindowManager) field.get(manager);
+					break;
+				}
+			}
+			// Field getWindowManager = windowClass.getField("mWindowManager");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		ArrayList<Field> arrayList = new ArrayList<Field>();
 		ViewScanner.getAllFields(manager, manager.getClass(), arrayList);
 		ArrayList<View> result = new ArrayList<View>();
@@ -127,7 +150,9 @@ public class ViewScanner {
 				} else if (field.getName().equals("mRoots")) {
 					Object object = field.get(manager);
 					Object[] views = (Object[]) object;
-					ArrayList<Object> objects = (ArrayList<Object>) Arrays.asList(views);
+					List<Object> objectViews = Arrays.asList(views);
+					ArrayList<Object> objects = new ArrayList<Object>();
+					objects.addAll(objectViews);
 					if (objects != null) {
 						for (Object viewParent : objects) {
 							Field mView = viewParent.getClass().getDeclaredField("mView");
