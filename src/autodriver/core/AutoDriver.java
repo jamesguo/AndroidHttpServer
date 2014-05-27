@@ -336,6 +336,7 @@ public class AutoDriver {
 			outputStream = client.getOutputStream();
 			outputStream.write(dataBean);
 			outputStream.flush();
+			dataBean = null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

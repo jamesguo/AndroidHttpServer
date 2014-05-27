@@ -30,33 +30,37 @@ public class CommandScreenShot extends BaseCommand {
 				e.printStackTrace();
 			}
 		}
-		Bitmap bitmap = ViewPreview.convertViewToBitmap(rootView);
-		if (bitmap != null) {
-			ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
-			bitmap.compress(Bitmap.CompressFormat.PNG, 60, arrayOutputStream);
-			byte[] bytearray = arrayOutputStream.toByteArray();
-			bitmap.recycle();
-			bitmap = null;
-			String image = TypeConvertUtil.bytesToHexString(bytearray);
-			AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
-			actionProtocol.actionCode = request.actionCode;
-			actionProtocol.SeqNo = request.SeqNo;
-			actionProtocol.result = (byte) 0;
-			JSONObject res = new JSONObject();
-			try {
-				res.put("value", "success");
-				res.put("ImageData", image);
-				actionProtocol.json = res;
-				return actionProtocol;
-			} catch (JSONException e) {
-				e.printStackTrace();
+		try {
+			Bitmap bitmap = ViewPreview.convertViewToBitmap(rootView);
+			if (bitmap != null) {
+				ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
+				bitmap.compress(Bitmap.CompressFormat.PNG, 60, arrayOutputStream);
+				byte[] bytearray = arrayOutputStream.toByteArray();
+				bitmap.recycle();
+				bitmap = null;
+				String image = TypeConvertUtil.bytesToHexString(bytearray);
+				AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
+				actionProtocol.actionCode = request.actionCode;
+				actionProtocol.SeqNo = request.SeqNo;
+				actionProtocol.result = (byte) 0;
+				JSONObject res = new JSONObject();
+				try {
+					res.put("value", "success");
+					res.put("ImageData", image);
+					actionProtocol.json = res;
+					return actionProtocol;
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 			}
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 
 		AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
 		actionProtocol.actionCode = request.actionCode;
 		actionProtocol.SeqNo = request.SeqNo;
-		actionProtocol.result = (byte) 1;
+		actionProtocol.result = (byte) 0;
 		JSONObject res = new JSONObject();
 		try {
 			res.put("errorinfo", "can not take screenshot");

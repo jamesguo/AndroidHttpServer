@@ -22,7 +22,7 @@ public class CommandClick extends BaseCommand {
 				int[] location = new int[2];
 				view.getLocationOnScreen(location);
 				tapPosition(location[0] + view.getMeasuredWidth() / 2, location[1] + view.getMeasuredHeight() / 2);
-				BlockDelayUtil.waitforTime(1);
+				BlockDelayUtil.waitforTime(0.2f);
 
 				AndroidActionProtocol actionProtocol = new AndroidActionProtocol();
 				actionProtocol.actionCode = request.actionCode;

@@ -65,6 +65,8 @@ public class TypeConvertUtil {
 		byte[] submit = new byte[arr1.length + arr2.length];
 		System.arraycopy(arr1, 0, submit, 0, arr1.length);
 		System.arraycopy(arr2, 0, submit, arr1.length, arr2.length);
+		arr1 = null;
+		arr2 = null;
 		return submit;
 	}
 

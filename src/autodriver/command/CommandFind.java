@@ -68,12 +68,12 @@ public class CommandFind extends BaseCommand {
 			actionProtocol.actionCode = request.actionCode;
 			actionProtocol.SeqNo = request.SeqNo;
 			if (reuslt.length() > 0) {
-				actionProtocol.result = (byte)0;
+				actionProtocol.result = (byte) 0;
 				JSONObject jsonObject = new JSONObject();
 				jsonObject.put("elements", reuslt.toString());
 				actionProtocol.json = jsonObject;
 			} else {
-				actionProtocol.result = (byte)1;
+				actionProtocol.result = (byte) 1;
 				JSONObject jsonObject = new JSONObject();
 				jsonObject.put("errorinfo", "can not find " + value);
 				actionProtocol.json = jsonObject;
@@ -128,6 +128,7 @@ public class CommandFind extends BaseCommand {
 			}
 		}
 	}
+
 	public static void viewScan(View rootView, int findType, String target, JSONArray reslutList) {
 		if (rootView != null && rootView.getVisibility() == View.VISIBLE) {
 			FindType find = FindType.getType(findType);
@@ -189,14 +190,27 @@ public class CommandFind extends BaseCommand {
 								name = name.substring(name.lastIndexOf("/") + 1);
 								fieldDescription.put("type", "String");
 								fieldDescription.put("value", name);
-								fieldArray.put(fieldDescription);
+								if (name.equals(target) && !fieldDescription.get("name").equals("mBtnRightText") && !fieldDescription.get("name").equals("mTextSubmitValue")) {
+									JSONObject jsonObject = new JSONObject();
+									jsonObject.put("id", rootView.hashCode());
+									reslutList.put(jsonObject);
+									break;
+								}
+								// fieldArray.put(fieldDescription);
 							} else if (field.getName().equals("mID") && (Integer) fieldValue > 0) {
 								try {
 									String name = CtripBaseApplication.getInstance().getResources().getResourceName((Integer) fieldValue);
 									name = name.substring(name.lastIndexOf("/") + 1);
 									fieldDescription.put("type", "String");
 									fieldDescription.put("value", name);
-									fieldArray.put(fieldDescription);
+									if (name.equals(target) && !fieldDescription.get("name").equals("mBtnRightText") && !fieldDescription.get("name").equals("mTextSubmitValue")) {
+										JSONObject jsonObject = new JSONObject();
+										jsonObject.put("id", rootView.hashCode());
+										reslutList.put(jsonObject);
+										break;
+									}
+
+									// fieldArray.put(fieldDescription);
 								} catch (Exception e) {
 									fieldDescription.put("type", "int");
 									fieldDescription.put("value", fieldValue);
@@ -221,7 +235,13 @@ public class CommandFind extends BaseCommand {
 
 							fieldDescription.put("type", "String");
 							fieldDescription.put("value", TypeConvertUtil.getSimpleStr((String) fieldValue));
-							fieldArray.put(fieldDescription);
+							if (TypeConvertUtil.getSimpleStr((String) fieldValue).equals(target) && !fieldDescription.get("name").equals("mBtnRightText")
+									&& !fieldDescription.get("name").equals("mTextSubmitValue")) {
+								JSONObject jsonObject = new JSONObject();
+								jsonObject.put("id", rootView.hashCode());
+								reslutList.put(jsonObject);
+								break;
+							}
 							// if (field.getName().equals("mText") ||
 							// field.getName().equals("mHint")) {
 							// //
@@ -245,50 +265,43 @@ public class CommandFind extends BaseCommand {
 						e.printStackTrace();
 					}
 				}
-				int usefulFieldCount = fieldArray.length();
-
-				for (int i = 0; i < usefulFieldCount; i++) {
-					try {
-						JSONObject object = (JSONObject) fieldArray.get(i);
-						if (object.get("value").equals(target) && !object.get("name").equals("mBtnRightText") && !object.get("name").equals("mTextSubmitValue")) {
-							JSONObject jsonObject = new JSONObject();
-							jsonObject.put("id", rootView.hashCode());
-							reslutList.put(jsonObject);
-							break;
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				}
 				break;
 			default:
 				break;
 			}
-			if (rootView instanceof ViewGroup) {
-				try {
-					Field childViewsField = ViewGroup.class.getDeclaredField("mChildren");
-					childViewsField.setAccessible(true);
-					View[] mChildren = (View[]) childViewsField.get(rootView);
-					int count = mChildren.length;
-					for (int i = 0; i < count; i++) {
-						try {
-							View childView = mChildren[i];
-							if (childView.getVisibility() != View.GONE) {
-								viewScan(childView, findType, target, reslutList);
+			if (reslutList.length() > 0) {
+				return;
+			} else {
+				if (rootView instanceof ViewGroup) {
+					try {
+						Field childViewsField = ViewGroup.class.getDeclaredField("mChildren");
+						childViewsField.setAccessible(true);
+						View[] mChildren = (View[]) childViewsField.get(rootView);
+						int count = mChildren.length;
+						for (int i = 0; i < count; i++) {
+							try {
+								View childView = mChildren[i];
+								if (reslutList.length() > 0) {
+									break;
+								} else {
+									if (childView.getVisibility() != View.GONE) {
+										viewScan(childView, findType, target, reslutList);
+									}
+								}
+							} catch (Exception e) {
+								// TODO: handle exception
 							}
-						} catch (Exception e) {
-							// TODO: handle exception
 						}
+					} catch (NoSuchFieldException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				} catch (NoSuchFieldException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			}
 			// if (rootView instanceof ViewGroup) {

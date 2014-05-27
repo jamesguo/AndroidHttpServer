@@ -44,6 +44,7 @@ public class CommondProcoltolUtil {
 			// bean.SeqNo = 0;
 			// bean.body = message;
 			// }
+			beanByte = null;
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -70,6 +71,7 @@ public class CommondProcoltolUtil {
 			byte[] length = TypeConvertUtil.intToByte(bodyByte.length);
 			System.arraycopy(length, 0, pre, 0, length.length);
 			byte[] request = TypeConvertUtil.combineByteArr(pre, bodyByte);
+			responseBean = null;
 			return request;
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

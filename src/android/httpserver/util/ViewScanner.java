@@ -1,6 +1,8 @@
 package android.httpserver.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,7 +88,7 @@ public class ViewScanner {
 		ArrayList<View> arrayList = getAllWindowViews();
 		for (View view : arrayList) {
 			View resView = recursiverForView(id, view);
-			if(resView!=null){
+			if (resView != null) {
 				return resView;
 			}
 		}
@@ -106,9 +108,17 @@ public class ViewScanner {
 
 	public static ArrayList<View> getAllWindowViews() {
 		WindowManager manager = CtripBaseApplication.getInstance().getCurrentActivity().getWindow().getWindowManager();
+		String className = CtripBaseApplication.getInstance().getCurrentActivity().getClass().getName();
+		Class<?> decorView = null;
+		try {
+			decorView = Class.forName("com.android.internal.policy.impl.PhoneWindow$DecorView");
+		} catch (ClassNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		try {
 			Class<?> windowClass = Class.forName("android.view.Window$LocalWindowManager");
-			 ArrayList<Field> arrayList = new ArrayList<Field>();
+			ArrayList<Field> arrayList = new ArrayList<Field>();
 			ViewScanner.getAllFields(manager, windowClass, arrayList);
 			for (Field field : arrayList) {
 				if (field.getName().equals("mWindowManager")) {
@@ -143,7 +153,19 @@ public class ViewScanner {
 						for (Object viewParent : objects) {
 							Field mView = viewParent.getClass().getDeclaredField("mView");
 							mView.setAccessible(true);
-							result.add((View) mView.get(viewParent));
+							View view = (View) mView.get(viewParent);
+							if (view != null) {
+								if (view.getClass().equals(decorView)) {
+									Method method = object.getClass().getDeclaredMethod("getWindowName", viewParent.getClass());
+									method.setAccessible(true);
+									String windowName = (String) method.invoke(object, viewParent);
+									if (windowName.contains(className)) {
+										result.add(view);
+									}
+								} else {
+									result.add(result.size(), view);
+								}
+							}
 						}
 					}
 					break;
@@ -157,7 +179,17 @@ public class ViewScanner {
 						for (Object viewParent : objects) {
 							Field mView = viewParent.getClass().getDeclaredField("mView");
 							mView.setAccessible(true);
-							result.add((View) mView.get(viewParent));
+							View view = (View) mView.get(viewParent);
+							if (view.getClass().equals(decorView)) {
+								Field mWindowAttributes = viewParent.getClass().getDeclaredField("mWindowAttributes");
+								mWindowAttributes.setAccessible(true);
+								WindowManager.LayoutParams params = (WindowManager.LayoutParams) mWindowAttributes.get(viewParent);
+								if (params.getTitle().toString().contains(className)) {
+									result.add(view);
+								}
+							} else {
+								result.add(result.size(), view);
+							}
 						}
 					}
 					break;
@@ -169,6 +201,12 @@ public class ViewScanner {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

@@ -8,11 +8,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.httpserver.util.ViewScanner;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import autodriver.util.TypeConvertUtil;
 import ctrip.base.logical.component.CtripBaseApplication;
-import ctrip.base.logical.component.widget.CtripTitleView;
 
 public class CommandViewDump extends BaseCommand {
 
@@ -51,7 +50,10 @@ public class CommandViewDump extends BaseCommand {
 		ArrayList<View> result = ViewScanner.getAllWindowViews();
 		if (result != null) {
 			for (View view : result) {
-				reslutList.put(viewDump(view));
+				JSONObject jsonObject = viewDump(view);
+				if(jsonObject!=null){
+					reslutList.put(jsonObject);
+				}
 			}
 		}
 		return reslutList;
@@ -67,7 +69,7 @@ public class CommandViewDump extends BaseCommand {
 				rootView.getLocationOnScreen(location);
 				String classNitName = ":" + classname;
 				jsonObject.put("class", classNitName);
-				jsonObject.put("id", "" + rootView.hashCode());
+				// jsonObject.put("id", "" + rootView.hashCode());
 				JSONArray fieldArray = new JSONArray();
 				ArrayList<Field> result = new ArrayList<Field>();
 				ViewScanner.getAllFields(rootView, viewclass, result);
@@ -78,20 +80,22 @@ public class CommandViewDump extends BaseCommand {
 					}
 					field.setAccessible(true);
 					Object value = field.get(rootView);
-					JSONObject fieldDescription = new JSONObject();
-					fieldDescription.put("name", field.getName());
+					// JSONObject fieldDescription = new JSONObject();
+					// fieldDescription.put("name", field.getName());
 					if (value instanceof Float) {
-						fieldDescription.put("type", "float");
-						fieldDescription.put("value", value);
+						continue;
+						// fieldDescription.put("type", "float");
+						// fieldDescription.put("value", value);
 					} else if (value instanceof Double) {
-						fieldDescription.put("type", "double");
-						fieldDescription.put("value", value);
+						continue;
+						// fieldDescription.put("type", "double");
+						// fieldDescription.put("value", value);
 					} else if (value instanceof Integer) {
 						if (field.getName().equals("mBackgroundResource") && (Integer) value > 0) {
 							String name = CtripBaseApplication.getInstance().getResources().getResourceName((Integer) value);
 							name = name.substring(name.lastIndexOf("/") + 1);
-							fieldDescription.put("type", "String");
-							fieldDescription.put("value", name);
+							// fieldDescription.put("type", "String");
+							// fieldDescription.put("value", name);
 							classNitName = "|" + name + classNitName;
 							jsonObject.put("class", classNitName);
 						} else if (field.getName().equals("mID") && (Integer) value > 0) {
@@ -100,52 +104,54 @@ public class CommandViewDump extends BaseCommand {
 								name = name.substring(name.lastIndexOf("/") + 1);
 								classNitName = "|" + name + classNitName;
 								jsonObject.put("class", classNitName);
-								fieldDescription.put("type", "String");
-								fieldDescription.put("value", name);
+								// fieldDescription.put("type", "String");
+								// fieldDescription.put("value", name);
 							} catch (Exception e) {
-								fieldDescription.put("type", "int");
-								fieldDescription.put("value", value);
+								continue;
+								// fieldDescription.put("type", "int");
+								// fieldDescription.put("value", value);
 							}
 						} else {
-							fieldDescription.put("type", "int");
-							fieldDescription.put("value", value);
+							continue;
+							// fieldDescription.put("type", "int");
+							// fieldDescription.put("value", value);
 						}
 					} else if (value instanceof Long) {
-						fieldDescription.put("type", "long");
-						fieldDescription.put("value", value);
+						continue;
+						// fieldDescription.put("type", "long");
+						// fieldDescription.put("value", value);
 					} else if (value instanceof Boolean) {
-						fieldDescription.put("type", "BOOL");
-						if ((Boolean) value) {
-							fieldDescription.put("value", "YES");
-						} else {
-							fieldDescription.put("value", "NO");
-						}
+						continue;
+						// fieldDescription.put("type", "BOOL");
+						// if ((Boolean) value) {
+						// fieldDescription.put("value", "YES");
+						// } else {
+						// fieldDescription.put("value", "NO");
+						// }
 					} else if (value instanceof CharSequence) {
-						fieldDescription.put("type", "String");
-						fieldDescription.put("value", value);
+						// fieldDescription.put("type", "String");
+						// fieldDescription.put("value",
+						// TypeConvertUtil.getSimpleStr((String) value));
 						if (field.getName().equals("mText") || field.getName().equals("mHint")) {
-							classNitName = "|" + value + classNitName;
+							classNitName = "|" + TypeConvertUtil.getSimpleStr((String) value) + classNitName;
 							jsonObject.put("class", classNitName);
 						}
 
 					} else {
 						continue;
 					}
-					fieldArray.put(fieldDescription);
+					// fieldArray.put(fieldDescription);
 				}
-				JSONObject viewArgDescription = new JSONObject();
-				viewArgDescription.put("name", classname);
-				viewArgDescription.put("props", fieldArray);
-				JSONArray viewDescriptionArray = new JSONArray();
-				viewDescriptionArray.put(viewArgDescription);
-
-				jsonObject.put("props", viewDescriptionArray);
+				// JSONObject viewArgDescription = new JSONObject();
+				// viewArgDescription.put("name", classname);
+				// viewArgDescription.put("props", fieldArray);
+				// JSONArray viewDescriptionArray = new JSONArray();
+				// viewDescriptionArray.put(viewArgDescription);
+				//
+				// jsonObject.put("props", viewDescriptionArray);
 
 				JSONArray childViewsArray = new JSONArray();
 
-				if (rootView instanceof CtripTitleView) {
-					Log.e("recursiverForView", "CtripTitleView");
-				}
 				if (rootView instanceof ViewGroup) {
 					try {
 						Field childViewsField = ViewGroup.class.getDeclaredField("mChildren");
