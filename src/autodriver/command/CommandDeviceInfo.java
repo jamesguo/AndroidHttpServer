@@ -23,7 +23,7 @@ public class CommandDeviceInfo extends BaseCommand {
 			res.put("height", displayMetrics.heightPixels);
 			res.put("width", displayMetrics.widthPixels);
 			res.put("OS", "Android");
-			res.put("Version", Build.VERSION.SDK_INT);
+			res.put("Version", "" + Build.VERSION.SDK_INT);
 			res.put("NAME", Build.MODEL + "-" + android.os.Build.ID);
 			String serial = null;
 			try {

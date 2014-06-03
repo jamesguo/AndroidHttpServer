@@ -3,11 +3,14 @@ package android.httpserver.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.util.DisplayMetrics;
 import android.view.View;
+import ctrip.base.logical.component.CtripBaseApplication;
 
 public class ViewPreview {
 	public static InputStream getViewPreview(long id) {
@@ -33,6 +36,22 @@ public class ViewPreview {
 		Matrix matrix = new Matrix();
 		matrix.postScale(0.5f, 0.5f);
 		Bitmap newbm = Bitmap.createBitmap(bitmap, 0, 0, view.getMeasuredWidth(), view.getMeasuredHeight(), matrix, true);
+		bitmap.recycle();
+		bitmap = null;
+		return newbm;
+	}
+	public static Bitmap convertViewToBitmap() {
+		DisplayMetrics displayMetrics = CtripBaseApplication.getInstance().getResources().getDisplayMetrics();
+		ArrayList<View> views = ViewScanner.getAllWindowViews();
+		Bitmap bitmap = Bitmap.createBitmap(displayMetrics.widthPixels, displayMetrics.heightPixels, Bitmap.Config.ARGB_8888);
+		for (View view : views) {
+			if (view != null) {
+				view.draw(new Canvas(bitmap));
+			}
+		}
+		Matrix matrix = new Matrix();
+		matrix.postScale(0.5f, 0.5f);
+		Bitmap newbm = Bitmap.createBitmap(bitmap, 0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels, matrix, true);
 		bitmap.recycle();
 		bitmap = null;
 		return newbm;

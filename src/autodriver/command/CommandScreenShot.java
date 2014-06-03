@@ -31,7 +31,7 @@ public class CommandScreenShot extends BaseCommand {
 			}
 		}
 		try {
-			Bitmap bitmap = ViewPreview.convertViewToBitmap(rootView);
+			Bitmap bitmap = ViewPreview.convertViewToBitmap();
 			if (bitmap != null) {
 				ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
 				bitmap.compress(Bitmap.CompressFormat.PNG, 60, arrayOutputStream);

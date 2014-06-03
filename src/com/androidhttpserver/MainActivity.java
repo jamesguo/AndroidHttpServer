@@ -5,15 +5,23 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.httpserver.SimpleWebServer;
+import android.httpserver.util.ViewScanner;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 import autodriver.command.AndroidActionProtocol;
@@ -23,7 +31,7 @@ import ctrip.base.logical.component.CtripBaseApplication;
 
 public class MainActivity extends Activity {
 	EditText editText;
-	public static final String url = "172.16.156.234";
+	public static final String url = "192.168.2.1";
 	public static final int port = 6100;
 
 	@Override
@@ -32,26 +40,24 @@ public class MainActivity extends Activity {
 		CtripBaseApplication.getInstance().setCurrentActivity(this);
 		setContentView(R.layout.activity_main);
 		editText = (EditText) findViewById(R.id.edit);
+		AssetManager assetManager = getAssets();
+		try {
+			String[] filePaths = assetManager.list("");
+			for (String filename : filePaths) {
+				String str[] = getAssets().list(filename);
+				if (str.length > 0) {
+					continue;
+				}
+				FileOutputStream fileOutputStream = getApplicationContext().openFileOutput(filename, MODE_PRIVATE);
 
-		// AssetManager assetManager = getAssets();
-		// try {
-		// String[] filePaths = assetManager.list("");
-		// for (String filename : filePaths) {
-		// String str[] = getAssets().list(filename);
-		// if (str.length > 0) {
-		// continue;
-		// }
-		// FileOutputStream fileOutputStream =
-		// getApplicationContext().openFileOutput(filename, MODE_PRIVATE);
-		//
-		// InputStream sourceFile = assetManager.open(filename);
-		// copyFile(sourceFile, fileOutputStream);
-		// fileOutputStream.close();
-		// }
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+				InputStream sourceFile = assetManager.open(filename);
+				copyFile(sourceFile, fileOutputStream);
+				fileOutputStream.close();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		new Thread(new Runnable() {
 
 			@Override
@@ -72,9 +78,40 @@ public class MainActivity extends Activity {
 			@Override
 			public void run() {
 				try {
-					Thread.sleep(3000);
+					Thread.sleep(1000);
 				} catch (Exception e) {
 					// TODO: handle exception
+				}
+
+				Window window = MainActivity.this.getWindow();
+				WindowManager manager = window.getWindowManager();
+				ArrayList<Field> arrayList = new ArrayList<Field>();
+				ViewScanner.getAllFields(manager, manager.getClass(), arrayList);
+				for (Field field : arrayList) {
+					field.setAccessible(true);
+					try {
+						if (field.getName().equals("mGlobal")) {
+							Object object = field.get(manager);
+							Field rootViews = object.getClass().getField("mRoots");
+							rootViews.setAccessible(true);
+							ArrayList<View> views = (ArrayList<View>) rootViews.get(object);
+							break;
+						} else if (field.getName().equals("mRoots")) {
+							Object object = field.get(manager);
+							View[] views = (View[]) object;
+							ArrayList<View> result = (ArrayList<View>) Arrays.asList(views);
+							break;
+						}
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (NoSuchFieldException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				for (int i = 0; i < 4; i++) {
 					new Thread(new Runnable() {
