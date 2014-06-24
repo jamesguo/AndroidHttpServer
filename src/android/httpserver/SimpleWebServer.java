@@ -125,7 +125,7 @@ public class SimpleWebServer extends NanoHTTPD {
      */
     public static void main(String[] args) {
         // Defaults
-		int port = 9449;
+		int port = 5389;
 
         String host = "127.0.0.1";
         List<File> rootDirs = new ArrayList<File>();

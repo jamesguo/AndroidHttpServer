@@ -7,6 +7,7 @@ public abstract class CtripBaseActivityV2 extends FragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle bundle) {
+
 		super.onCreate(bundle);
 
 	}
