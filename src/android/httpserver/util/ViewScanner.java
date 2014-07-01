@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import autodriver.core.AutoDriver;
+import autodriver.util.TypeConvertUtil;
 import ctrip.base.logical.component.CtripBaseApplication;
 import ctrip.base.logical.component.widget.CtripTitleView;
 
@@ -233,7 +234,7 @@ public class ViewScanner {
 		return windowObjects;
 	}
 
-	private static JSONObject scanView(View rootView) {
+	public static JSONObject scanView(View rootView) {
 		if (rootView != null && rootView.getVisibility() != View.GONE) {
 			JSONObject jsonObject = new JSONObject();
 			try {
@@ -294,7 +295,7 @@ public class ViewScanner {
 						} else if (field.getName().equals("mID") && (Integer) value > 0) {
 							try {
 								String name = CtripBaseApplication.getInstance().getResources().getResourceName((Integer) value);
-								name = name.substring(name.lastIndexOf("/") + 1);
+								name = TypeConvertUtil.getSimpleStr(name.substring(name.lastIndexOf("/") + 1));
 								classNitName = "|" + name + classNitName;
 								jsonObject.put("class", classNitName);
 								fieldDescription.put("type", "String");
@@ -319,7 +320,7 @@ public class ViewScanner {
 						}
 					} else if (value instanceof CharSequence) {
 						fieldDescription.put("type", "String");
-						fieldDescription.put("value", value);
+						fieldDescription.put("value",  TypeConvertUtil.getSimpleStr(value.toString()));
 						if (field.getName().equals("mText") || field.getName().equals("mHint")) {
 							classNitName = "|" + value + classNitName;
 							jsonObject.put("class", classNitName);

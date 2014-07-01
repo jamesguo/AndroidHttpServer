@@ -51,7 +51,7 @@ public class CommandViewDump extends BaseCommand {
 		if (result != null) {
 			for (View view : result) {
 				JSONObject jsonObject = viewDump(view);
-				if(jsonObject!=null){
+				if (jsonObject != null) {
 					reslutList.put(jsonObject);
 				}
 			}
@@ -65,12 +65,11 @@ public class CommandViewDump extends BaseCommand {
 			try {
 				Class<?> viewclass = rootView.getClass();
 				String classname = viewclass.getSimpleName();
-				int[] location = new int[2];
-				rootView.getLocationOnScreen(location);
+				// int[] location = new int[2];
+				// rootView.getLocationOnScreen(location);
 				String classNitName = ":" + classname;
 				jsonObject.put("class", classNitName);
-				// jsonObject.put("id", "" + rootView.hashCode());
-				JSONArray fieldArray = new JSONArray();
+				jsonObject.put("id", "" + rootView.hashCode());
 				ArrayList<Field> result = new ArrayList<Field>();
 				ViewScanner.getAllFields(rootView, viewclass, result);
 				for (Field field : result) {
@@ -129,9 +128,6 @@ public class CommandViewDump extends BaseCommand {
 						// fieldDescription.put("value", "NO");
 						// }
 					} else if (value instanceof CharSequence) {
-						// fieldDescription.put("type", "String");
-						// fieldDescription.put("value",
-						// TypeConvertUtil.getSimpleStr((String) value));
 						if (field.getName().equals("mText") || field.getName().equals("mHint")) {
 							classNitName = "|" + TypeConvertUtil.getSimpleStr((String) value) + classNitName;
 							jsonObject.put("class", classNitName);

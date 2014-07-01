@@ -50,7 +50,7 @@ public class ViewPreview {
 			}
 		}
 		Matrix matrix = new Matrix();
-		matrix.postScale(0.5f, 0.5f);
+		matrix.postScale(0.25f, 0.25f);
 		Bitmap newbm = Bitmap.createBitmap(bitmap, 0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels, matrix, true);
 		bitmap.recycle();
 		bitmap = null;

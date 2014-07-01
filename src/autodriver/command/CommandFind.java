@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.httpserver.util.ViewScanner;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import autodriver.util.BlockDelayUtil;
@@ -76,6 +77,7 @@ public class CommandFind extends BaseCommand {
 				actionProtocol.result = (byte) 1;
 				JSONObject jsonObject = new JSONObject();
 				jsonObject.put("errorinfo", "can not find " + value);
+                jsonObject.put("viewDump",CommandViewDump.viewsDump().toString() );
 				actionProtocol.json = jsonObject;
 			}
 			return actionProtocol;
@@ -113,6 +115,15 @@ public class CommandFind extends BaseCommand {
 				if (arrayList.length() > 0) {
 					return ExecuteBlock.StepResultSuccess;
 				} else {
+					if (value.equals("民生银行-信用卡尾号**08")) {
+						ArrayList<View> result = ViewScanner.getAllWindowViews();
+						if (result != null) {
+							for (View view : result) {
+								Log.e("find", "ViewScanner:" + ViewScanner.scanView(view).toString());
+							}
+						}
+
+					}
 					return ExecuteBlock.StepResultWait;
 				}
 			}
@@ -146,7 +157,6 @@ public class CommandFind extends BaseCommand {
 				}
 				break;
 			case NAME:
-				JSONArray fieldArray = new JSONArray();
 				ArrayList<Field> result = new ArrayList<Field>();
 				ViewScanner.getAllFields(rootView, viewclass, result);
 				for (Field field : result) {
@@ -188,8 +198,8 @@ public class CommandFind extends BaseCommand {
 							if (field.getName().equals("mBackgroundResource") && (Integer) fieldValue > 0) {
 								String name = CtripBaseApplication.getInstance().getResources().getResourceName((Integer) fieldValue);
 								name = name.substring(name.lastIndexOf("/") + 1);
-								fieldDescription.put("type", "String");
-								fieldDescription.put("value", name);
+								// fieldDescription.put("type", "String");
+								// fieldDescription.put("value", name);
 								if (name.equals(target) && !fieldDescription.get("name").equals("mBtnRightText") && !fieldDescription.get("name").equals("mTextSubmitValue")) {
 									JSONObject jsonObject = new JSONObject();
 									jsonObject.put("id", rootView.hashCode());
@@ -201,8 +211,8 @@ public class CommandFind extends BaseCommand {
 								try {
 									String name = CtripBaseApplication.getInstance().getResources().getResourceName((Integer) fieldValue);
 									name = name.substring(name.lastIndexOf("/") + 1);
-									fieldDescription.put("type", "String");
-									fieldDescription.put("value", name);
+									// fieldDescription.put("type", "String");
+									// fieldDescription.put("value", name);
 									if (name.equals(target) && !fieldDescription.get("name").equals("mBtnRightText") && !fieldDescription.get("name").equals("mTextSubmitValue")) {
 										JSONObject jsonObject = new JSONObject();
 										jsonObject.put("id", rootView.hashCode());
@@ -233,9 +243,11 @@ public class CommandFind extends BaseCommand {
 							// }
 						} else if (fieldValue instanceof CharSequence) {
 
-							fieldDescription.put("type", "String");
-							fieldDescription.put("value", TypeConvertUtil.getSimpleStr((String) fieldValue));
-							if (TypeConvertUtil.getSimpleStr((String) fieldValue).equals(target) && !fieldDescription.get("name").equals("mBtnRightText")
+							// fieldDescription.put("type", "String");
+							// fieldDescription.put("value",
+							// TypeConvertUtil.getSimpleStr((String)
+							// fieldValue));
+							if (TypeConvertUtil.getSimpleStr(fieldValue.toString()).equals(target) && !fieldDescription.get("name").equals("mBtnRightText")
 									&& !fieldDescription.get("name").equals("mTextSubmitValue")) {
 								JSONObject jsonObject = new JSONObject();
 								jsonObject.put("id", rootView.hashCode());
